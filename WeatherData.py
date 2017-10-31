@@ -1,19 +1,9 @@
-from abc import ABC, abstractmethod
+from DataToPrepare import DataToPrepare
+from abc import abstractmethod
 import pandas as pd
 
 
-class WeatherData(ABC):
-    def __init__(self, file_path_format, year):
-        self.df = pd.DataFrame()
-        self.merge_weather_data(file_path_format, year)
-        self.format()
-        self.interpolate()
-        self.normalize()
-
-    @abstractmethod
-    def format(self):
-        pass
-
+class WeatherData(DataToPrepare):
     @abstractmethod
     def normalize(self):
         pass
@@ -21,6 +11,17 @@ class WeatherData(ABC):
     @abstractmethod
     def interpolate(self):
         pass
+
+    @abstractmethod
+    def format(self):
+        pass
+
+    def __init__(self, file_path_format, year):
+        self.df = pd.DataFrame()
+        self.merge_weather_data(file_path_format, year)
+        self.format()
+        self.interpolate()
+        self.normalize()
 
     def save(self, save_path):
         self.df.to_csv(save_path)
