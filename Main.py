@@ -1,4 +1,4 @@
-from WeatherForYou import WeatherForYou
+from WeatherForYouData import WeatherForYou
 
 WEATHER_DATA_PATH = 'C:\\Users\Gelo\Documents\Gelo103097\DLSU Files\THESIS\data\weather\\'
 WEATHER_DATA_WEATHERFORYOU_2015_MANILA_PATH = WEATHER_DATA_PATH + '\\weatherforyou 2015\\'
