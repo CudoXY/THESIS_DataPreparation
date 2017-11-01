@@ -2,7 +2,7 @@ from enum import Enum
 
 from DataToMerge import DataToMerge
 import pandas as pd
-import numpy as np
+import os
 
 
 class MergeMMDAWeatherForYou(DataToMerge):
@@ -25,6 +25,10 @@ class MergeMMDAWeatherForYou(DataToMerge):
             PRESSURE = 'time_pressure'
             WIND_SPEED = 'time_winds'  # MPH
 
+    class SaveMode(Enum):
+        BY_STATION = 1
+        BY_LINE = 2
+
     def __init__(self, traffic_data_path, weather_data_path):
         self.traffic_df = pd.DataFrame()
         self.weather_df = pd.DataFrame()
@@ -46,13 +50,18 @@ class MergeMMDAWeatherForYou(DataToMerge):
         del self.traffic_df
         del self.weather_df
 
-        # print(self.df.head().to_string())
-
     def format(self):
-        pass
-        # print(len(self.df))
-        # self.df.dropna(how='any', inplace=True)
-        # print(len(self.df))
+        self.df.drop(self.Columns.Weather.DATE_TIME.value, axis=1, inplace=True)
 
     def save(self, save_path):
-        self.df.to_csv(save_path)
+        temp_df = self.df.set_index(self.Columns.Traffic.DATE_TIME.value)
+        temp_df.to_csv(save_path)
+
+    def save_formatted(self, file_path_format, save_mode):
+        col = self.Columns.Traffic.LINE_NAME.value if save_mode == self.SaveMode.BY_LINE else self.Columns.Traffic.STATION_NAME.value
+        label_list = self.df[col].unique()
+
+        for label in label_list:
+            save_path = file_path_format.format(label=label)
+            temp_df = self.df.loc[(self.df[col] == label)]
+            temp_df.to_csv(save_path)

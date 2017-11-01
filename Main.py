@@ -19,6 +19,7 @@ TRAFFIC_DATA_2015_PATH = TRAFFIC_DATA_PATH + 'status_collated_2015.csv'
 TRAFFIC_DATA_2015_MANILA_SAVE_PATH = TRAFFIC_DATA_PATH + 'mmda_normalized_manila_2015.csv'
 
 MERGED_MMDA_WEATHERFORYOU_2015_MANILA_SAVE_PATH = DATA_PATH + 'merged_mmda_weatherforyou_manila_2015.csv'
+MERGED_MMDA_WEATHERFORYOU_2015_FORMATTED_SAVE_PATH = DATA_PATH + 'merged_mmda_weatherforyou_{label}_2015.csv'
 
 
 # weatherforyou = WeatherForYou(WEATHER_DATA_WEATHERFORYOU_2015_MANILA_PATH + '{month:02d}-{year}.csv', 2015)
@@ -30,4 +31,6 @@ MERGED_MMDA_WEATHERFORYOU_2015_MANILA_SAVE_PATH = DATA_PATH + 'merged_mmda_weath
 
 merge_mmda_weatherforyou = MergeMMDAWeatherForYou(TRAFFIC_DATA_2015_MANILA_SAVE_PATH,
                                                   WEATHER_DATA_WEATHERFORYOU_2015_MANILA_SAVE_PATH)
-merge_mmda_weatherforyou.save(MERGED_MMDA_WEATHERFORYOU_2015_MANILA_SAVE_PATH)
+# merge_mmda_weatherforyou.save(MERGED_MMDA_WEATHERFORYOU_2015_MANILA_SAVE_PATH)
+merge_mmda_weatherforyou.save_formatted(MERGED_MMDA_WEATHERFORYOU_2015_FORMATTED_SAVE_PATH,
+                                        merge_mmda_weatherforyou.SaveMode.BY_STATION)
