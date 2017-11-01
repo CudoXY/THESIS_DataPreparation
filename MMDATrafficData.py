@@ -74,17 +74,14 @@ class MMDATrafficData(DataToPrepare):
             self.Columns.Traffic.STATUS_SOUTHBOUND.value].astype(float)
         self.df = self.df.interpolate(method='linear')
 
-        print(self.df.head(100).to_string())
-
     def format(self):
         # Remove lineID, stationID, timestamp columns
         self.df.drop(self.df.columns[:2], axis=1, inplace=True)
         self.df.drop(self.Columns.Traffic.TIMESTAMP.value, axis=1, inplace=True)
 
-        # print(self.df.head())
-
     def save(self, save_path):
-        self.df.to_csv(save_path)
+        temp_df = self.df.set_index(self.Columns.Traffic.DATE_TIME.value)
+        temp_df.to_csv(save_path)
 
     def load(self, traffic_data_path):
         # Load CSV File
