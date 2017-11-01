@@ -2,10 +2,11 @@ from enum import Enum
 
 from DataToPrepare import DataToPrepare
 import pandas as pd
+import numpy as np
 
 
 class MMDATrafficData(DataToPrepare):
-    class Columns():
+    class Columns:
         class Traffic(Enum):
             LINE_ID = 'lineID'
             STATION_ID = 'stationID'
@@ -25,11 +26,44 @@ class MMDATrafficData(DataToPrepare):
             STATION_ID = 'stationID'
             STATION_NAME = 'stationName'
 
+    TRAFFIC_COND_RANKED_LIST = ['L', 'M', 'H']
+    TRAFFIC_COND_NONE = 'N'
+
     def normalize(self):
         pass
 
     def interpolate(self):
-        return
+        # Remove northbound N labels
+        self.df[self.Columns.Traffic.STATUS_NORTHBOUND.value] = np.where(
+            self.df[self.Columns.Traffic.STATUS_NORTHBOUND.value] == self.TRAFFIC_COND_NONE,
+            np.nan, self.df[self.Columns.Traffic.STATUS_NORTHBOUND.value])
+
+        # Remove southbound N labels
+        self.df[self.Columns.Traffic.STATUS_SOUTHBOUND.value] = np.where(
+            self.df[self.Columns.Traffic.STATUS_SOUTHBOUND.value] == self.TRAFFIC_COND_NONE,
+            np.nan, self.df[self.Columns.Traffic.STATUS_SOUTHBOUND.value])
+
+        # Convert northbound labels to ranked value
+        for i, weather_cond in enumerate(self.TRAFFIC_COND_RANKED_LIST):
+            self.df[self.Columns.Traffic.STATUS_NORTHBOUND.value] = np.where(
+                self.df[self.Columns.Traffic.STATUS_NORTHBOUND.value] == weather_cond,
+                str(i / (len(self.TRAFFIC_COND_RANKED_LIST) - 1)),
+                self.df[self.Columns.Traffic.STATUS_NORTHBOUND.value])
+
+        # Convert southbound labels to ranked value
+        for i, weather_cond in enumerate(self.TRAFFIC_COND_RANKED_LIST):
+            self.df[self.Columns.Traffic.STATUS_SOUTHBOUND.value] = np.where(
+                self.df[self.Columns.Traffic.STATUS_SOUTHBOUND.value] == weather_cond,
+                str(i / (len(self.TRAFFIC_COND_RANKED_LIST) - 1)),
+                self.df[self.Columns.Traffic.STATUS_SOUTHBOUND.value])
+
+        self.df[self.Columns.Traffic.STATUS_NORTHBOUND.value] = self.df[
+            self.Columns.Traffic.STATUS_NORTHBOUND.value].astype(float)
+        self.df[self.Columns.Traffic.STATUS_SOUTHBOUND.value] = self.df[
+            self.Columns.Traffic.STATUS_SOUTHBOUND.value].astype(float)
+        self.df = self.df.interpolate(method='linear')
+
+        print(self.df.head(100).to_string())
 
     def format(self):
         # Remove lineID, stationID, timestamp columns
@@ -47,7 +81,7 @@ class MMDATrafficData(DataToPrepare):
         self.format()
         self.filter(line_name_filter_list, station_name_filter_list)
         self.interpolate()
-        # self.normalize()
+        self.normalize()
 
     def save(self, save_path):
         self.df.to_csv(save_path)
@@ -92,4 +126,3 @@ class MMDATrafficData(DataToPrepare):
     def filter(self, line_name_filter_list, station_name_filter_list):
         self.df = self.df.loc[(self.df[self.Columns.LineNames.LINE_NAME.value].isin(line_name_filter_list) |
                                self.df[self.Columns.LineStations.STATION_NAME.value].isin(station_name_filter_list))]
-        print(self.df.head(100).to_string())
