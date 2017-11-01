@@ -15,4 +15,5 @@ TRAFFIC_DATA_2015_PATH = TRAFFIC_DATA_PATH + 'status_collated_2015.csv'
 # weatherforyou = WeatherForYou(WEATHER_DATA_WEATHERFORYOU_2015_MANILA_PATH + '{month:02d}-{year}.csv', 2015)
 # weatherforyou.save(WEATHER_DATA_WEATHERFORYOU_2015_MANILA_SAVE_PATH)
 
-mmda_traffic = MMDATrafficData(TRAFFIC_DATA_LINE_NAME_PATH, TRAFFIC_DATA_LINE_STATION_PATH, TRAFFIC_DATA_2015_PATH)
+mmda_traffic = MMDATrafficData(TRAFFIC_DATA_LINE_NAME_PATH, TRAFFIC_DATA_LINE_STATION_PATH, TRAFFIC_DATA_2015_PATH,
+                               ['ESPAÑA', 'ROXAS BLVD.'], ['Taft Ave.', 'Magsaysay Ave', 'Quezon Ave.'])

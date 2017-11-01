@@ -36,15 +36,16 @@ class MMDATrafficData(DataToPrepare):
         self.df.drop(self.df.columns[:2], axis=1, inplace=True)
         self.df.drop(self.Columns.Traffic.TIMESTAMP.value, axis=1, inplace=True)
 
-        print(self.df.head())
+        # print(self.df.head())
 
-    def __init__(self, line_name_path, line_station_path, traffic_data_path, line_name_filter_list = [], station_name_filter_list = []):
+    def __init__(self, line_name_path, line_station_path, traffic_data_path, line_name_filter_list=[],
+                 station_name_filter_list=[]):
         self.df = pd.DataFrame()
         self.load(traffic_data_path)
         self.merge_line_names(line_name_path)
         self.merge_line_stations(line_station_path)
         self.format()
-        self.filter()
+        self.filter(line_name_filter_list, station_name_filter_list)
         self.interpolate()
         # self.normalize()
 
@@ -83,10 +84,12 @@ class MMDATrafficData(DataToPrepare):
         # Merge with Traffic Data
         self.df = pd.merge(self.df, line_station_df,
                            left_on=[self.Columns.Traffic.LINE_ID.value, self.Columns.Traffic.STATION_ID.value],
-                           right_on=[self.Columns.LineStations.LINE_ID.value, self.Columns.LineStations.STATION_ID.value],
+                           right_on=[self.Columns.LineStations.LINE_ID.value,
+                                     self.Columns.LineStations.STATION_ID.value],
                            how='left')
-
         # print(self.df.head(100).to_string())
 
-    def filter(self):
-        pass
+    def filter(self, line_name_filter_list, station_name_filter_list):
+        self.df = self.df.loc[(self.df[self.Columns.LineNames.LINE_NAME.value].isin(line_name_filter_list) |
+                               self.df[self.Columns.LineStations.STATION_NAME.value].isin(station_name_filter_list))]
+        print(self.df.head(100).to_string())
