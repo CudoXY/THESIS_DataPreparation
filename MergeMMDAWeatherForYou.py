@@ -36,7 +36,6 @@ class MergeMMDAWeatherForYou(DataToMerge):
         self.weather_df = pd.read_csv(self.WEATHER_DATA_PATH, sep=',\s,', delimiter=',', skipinitialspace=True)
 
     def merge(self):
-
         # Merge with Traffic Data
         self.df = pd.merge(self.traffic_df, self.weather_df,
                            left_on=self.Columns.Traffic.DATE_TIME.value,
@@ -47,10 +46,13 @@ class MergeMMDAWeatherForYou(DataToMerge):
         del self.traffic_df
         del self.weather_df
 
-        print(self.df.head().to_string())
-
-    def save(self):
-        pass
+        # print(self.df.head().to_string())
 
     def format(self):
         pass
+        # print(len(self.df))
+        # self.df.dropna(how='any', inplace=True)
+        # print(len(self.df))
+
+    def save(self, save_path):
+        self.df.to_csv(save_path)

@@ -11,7 +11,6 @@ class DataToMerge(ABC):
         self.load()
         self.merge()
         self.format()
-        self.save()
 
     @abstractmethod
     def load(self):
@@ -26,5 +25,5 @@ class DataToMerge(ABC):
         pass
 
     @abstractmethod
-    def save(self):
+    def save(self, save_path):
         pass
