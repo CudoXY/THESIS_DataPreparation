@@ -29,6 +29,17 @@ class MMDATrafficData(DataToPrepare):
     TRAFFIC_COND_RANKED_LIST = ['L', 'M', 'H']
     TRAFFIC_COND_NONE = 'N'
 
+    def __init__(self, line_name_path, line_station_path, traffic_data_path, line_name_filter_list=[],
+                 station_name_filter_list=[]):
+        self.df = pd.DataFrame()
+        self.load(traffic_data_path)
+        self.merge_line_names(line_name_path)
+        self.merge_line_stations(line_station_path)
+        self.format()
+        self.filter(line_name_filter_list, station_name_filter_list)
+        self.interpolate()
+        self.normalize()
+
     def normalize(self):
         pass
 
@@ -71,17 +82,6 @@ class MMDATrafficData(DataToPrepare):
         self.df.drop(self.Columns.Traffic.TIMESTAMP.value, axis=1, inplace=True)
 
         # print(self.df.head())
-
-    def __init__(self, line_name_path, line_station_path, traffic_data_path, line_name_filter_list=[],
-                 station_name_filter_list=[]):
-        self.df = pd.DataFrame()
-        self.load(traffic_data_path)
-        self.merge_line_names(line_name_path)
-        self.merge_line_stations(line_station_path)
-        self.format()
-        self.filter(line_name_filter_list, station_name_filter_list)
-        self.interpolate()
-        self.normalize()
 
     def save(self, save_path):
         self.df.to_csv(save_path)
