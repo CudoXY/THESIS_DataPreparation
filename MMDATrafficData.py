@@ -35,8 +35,8 @@ class MMDATrafficData(DataToPrepare):
         self.load(traffic_data_path)
         self.merge_line_names(line_name_path)
         self.merge_line_stations(line_station_path)
-        self.format()
         self.filter(line_name_filter_list, station_name_filter_list)
+        self.format()
         self.interpolate()
         self.normalize()
 
@@ -72,16 +72,34 @@ class MMDATrafficData(DataToPrepare):
             self.Columns.Traffic.STATUS_NORTHBOUND.value].astype(float)
         self.df[self.Columns.Traffic.STATUS_SOUTHBOUND.value] = self.df[
             self.Columns.Traffic.STATUS_SOUTHBOUND.value].astype(float)
-        self.df = self.df.interpolate(method='linear')
+
+        print(self.df.head().to_string())
+        print(len(self.df))
+
+        self.df = self.df.unstack(level=[self.Columns.LineStations.STATION_NAME.value,
+                                         self.Columns.LineNames.LINE_NAME.value]).\
+            resample('15T').interpolate(method='linear').stack(level=[2, 1]).swaplevel(2, 0)
+
+        print(self.df.tail().to_string())
+
+        print(len(self.df))
 
     def format(self):
         # Remove lineID, stationID, timestamp columns
         self.df.drop(self.df.columns[:2], axis=1, inplace=True)
         self.df.drop(self.Columns.Traffic.TIMESTAMP.value, axis=1, inplace=True)
 
+        print(self.df.head().to_string())
+
+        # Set datetime as index
+        self.df[self.Columns.Traffic.DATE_TIME.value] = pd.to_datetime(self.df[self.Columns.Traffic.DATE_TIME.value])
+
+        self.df.set_index([self.Columns.Traffic.DATE_TIME.value,
+                           self.Columns.LineNames.LINE_NAME.value,
+                           self.Columns.LineStations.STATION_NAME.value], inplace=True)
+
     def save(self, save_path):
-        temp_df = self.df.set_index(self.Columns.Traffic.DATE_TIME.value)
-        temp_df.to_csv(save_path)
+        self.df.to_csv(save_path)
 
     def load(self, traffic_data_path):
         # Load CSV File
@@ -122,4 +140,7 @@ class MMDATrafficData(DataToPrepare):
 
     def filter(self, line_name_filter_list, station_name_filter_list):
         self.df = self.df.loc[(self.df[self.Columns.LineNames.LINE_NAME.value].isin(line_name_filter_list) |
-                               self.df[self.Columns.LineStations.STATION_NAME.value].isin(station_name_filter_list))]
+                                     self.df[self.Columns.LineStations.STATION_NAME.value].isin(
+                                         station_name_filter_list))]
+
+        print('unique stations = ' + str(len(self.df[self.Columns.LineStations.STATION_NAME.value].unique())))

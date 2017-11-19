@@ -12,9 +12,12 @@ class WeatherDataCSV(WeatherData):
 
     def merge_csv(self, csv_path):
         # Load CSV File
-        csv_df = pd.read_csv(csv_path, sep=',\s,', delimiter=',', skipinitialspace=True)
+        csv_df = self.read_csv(csv_path)
 
         return pd.concat([self.df, csv_df], axis=0)
+
+    def read_csv(self, csv_path):
+        return pd.read_csv(csv_path, sep=',\s,', delimiter=',', skipinitialspace=True)
 
     def merge(self):
         self.df = pd.DataFrame()
